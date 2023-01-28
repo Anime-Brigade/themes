@@ -109,7 +109,7 @@ async function getTheme() {
     if(cantsee.urls.length > URL_LIMIT) cantsee.urls.shift();
     if(cantsee.slugs.length > SLUG_LIMIT) cantsee.slugs.shift();
     await new Promise((resolve, reject) => {
-        fs.writeFile(path.join(__dirname, 'run/cantsee.json'), JSON.stringify(cantsee), err => {
+        fs.writeFile(path.join(__dirname, 'run/cantsee.json'), JSON.stringify(cantsee, null, 4), err => {
             if (err) reject(err);
             else resolve();
         });
