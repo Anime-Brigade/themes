@@ -92,14 +92,15 @@ async function getTheme() {
         }
 
         if(cantsee.urls.includes(themesList[i].url)) {
-            console.log("URL COLLISION: retry!");
+            console.log("SKIP theme from", themesList[i].slug);
         } else if(cantsee.slugs.includes(themesList[i].slug)) {
-            console.log("SLUG COLLISION: retry!");
+            console.log("SKIP slug", themesList[i].slug);
         } else if (!allowcatbox && themesList[i].url.includes("catbox")) {
-            console.log("catbox disabled, retry!");
+            console.log("SKIP catbox disabled");
         } else if (history.disabled.includes(themesList[i].slug)) {
-            console.log("disabled entry, retry!");
+            console.log("SKIP disabled entry");
         } else {
+            console.log("CHOOSE theme from", themesList[i].slug);
             retTheme = themesList[i];
         }
     }
