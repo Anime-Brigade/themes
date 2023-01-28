@@ -149,7 +149,7 @@
                     document.getElementById(source).load();
                     
                 };
-                document.getElementById('title').onclick = () => {
+                document.getElementById('top').onclick = () => {
                     if (document.getElementById('player1').getAttribute('controls') === '') {
                         document.getElementById('player1').removeAttribute('controls');
                         document.getElementById('player2').removeAttribute('controls');
@@ -202,7 +202,7 @@
         </script>
     </head>
     <body>
-        <h1>ANIME BRIGADE STARTING <span id="timer"></span></h1>
+        <h1 id="top">ANIME BRIGADE STARTING <span id="timer"></span></h1>
         <div id="title"></div>
         <div id="song"></div>
         <div id="data"></div>
