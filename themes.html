@@ -1,0 +1,195 @@
+<html>
+    <head>
+        <style>
+            body {
+                margin: 0;
+                background-color: #000;
+                font-family: monospace;
+            }
+            video {
+                position: absolute;
+                width: calc(100% - 0px);
+                height: calc(100% - 199px);
+                left: 0px;
+                top: 199px;
+            }
+            video.hidden {
+                pointer-events: none;
+                opacity: 0;
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                left: -30px;
+                top: -30px;
+            }
+            h1 {
+                margin: 0px;
+                position: absolute;
+                display: block; 
+                top: 0px;
+                left: 0px;
+                width: 100%;
+                text-align: center;
+                margin-top: 20px;
+                font-size: 60px;
+                line-height: 60px;
+                height: 60px;
+                color: #DDEEFF;
+            }
+            #title {
+                position: absolute;
+                display: block; 
+                top: 90px;
+                left: 0px;
+                height: 30px;
+                width: 100%;
+                color: #DDEEFF;
+                font-size: 30px;
+                line-height: 30px;
+                text-align: center;
+            }
+            #song {
+                position: absolute;
+                display: block; 
+                top: 125px;
+                left: 0px;
+                height: 25px;
+                width: 100%;
+                color: #DDEEFF;
+                font-size: 25px;
+                line-height: 25px;
+                text-align: center;
+            }
+            #data {
+                position: absolute;
+                display: block; 
+                top: 155px;
+                left: 0px;
+                height: 24px;
+                margin-bottom: 20px;
+                width: 100%;
+                color: #DDEEFF;
+                font-size: 20px;
+                line-height: 24px;
+                text-align: center;
+            }
+            .section {
+                border-radius: 5px;
+                background-color: #550000;
+                padding-left: 5px;
+                padding-right: 5px;
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+        </style>
+        <script>
+
+            function getTheme() {
+                return new Promise((resolve, reject) => {
+                    let xhr = new XMLHttpRequest()
+                    
+                    xhr.open('POST', '/themes', true)
+                    xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8')
+                    xhr.send("");
+                     
+                    xhr.onload = function () {
+                        resolve(JSON.parse(xhr.response));
+                    } 
+                });
+            }
+
+            window.onload = async function() {
+                let theme;
+                let switchPlayer = async (source, destination) => {
+                    document.getElementById('title').innerText = theme.anime;
+                    document.getElementById('song').innerText = theme.theme;
+                    let datahtml = "";
+                    for (let i = 0; i < theme.watches.length; i++) {
+                        datahtml += '<span class="section">';
+                        datahtml += theme.watches[i].section;
+                        // datahtml += '</span>';
+                        // datahtml += '<span class="meeting">';
+                        datahtml += ' ';
+                        datahtml += theme.watches[i].meeting;
+                        datahtml += '</span>';
+                    }
+                    document.getElementById('data').innerHTML = datahtml;
+                    document.getElementById(destination)?.classList.remove('hidden');
+                    document.getElementById(source).classList.add('hidden');
+                    document.getElementById(destination)?.play();
+                    if (document.getElementById(destination)) {
+                        document.getElementById(destination).onplaying = () => {
+                            console.log(destination + ' playing');
+                            document.getElementById(destination).removeAttribute('controls');
+                            document.getElementById(destination).onplaying = () => {};
+                        };
+                    }
+                    theme = await getTheme();
+                    document.getElementById(source).setAttribute('src', theme.url);
+                    document.getElementById(source).oncanplay = () => {
+                        console.log(source + ' has loaded');
+                        document.getElementById(source).onplaying = () => {
+                            document.getElementById(source).pause();
+                            document.getElementById(source).volume = 1;
+                            document.getElementById(source).onplaying = () => {};
+                            console.log(source + ' preplayed success');
+                        };
+                        document.getElementById(source).volume = 0;
+                        document.getElementById(source).play();
+                        document.getElementById(source).oncanplay = () => {};
+                    };
+                    document.getElementById(source).load();
+                    
+                };
+
+                theme = await getTheme();
+                console.log(theme);
+
+                document.getElementById('source1').setAttribute('src', theme.url); 
+                document.getElementById('player1').load();
+                switchPlayer('player2', null);
+
+                document.getElementById('player1').onclick = () => {
+                    document.getElementById('player1').play();
+                }
+
+                document.getElementById('player1').onended = () => {
+                    switchPlayer('player1', 'player2');
+                };
+
+                document.getElementById('player2').onended = () => {
+                    switchPlayer('player2', 'player1');
+                };
+                
+                // const startDate = new Date("July 27, 2022 21:10:00").getTime();
+                const startDate = new Date().setHours(21, 10, 0, 0);
+                const x = setInterval(() => {
+                    let distance = startDate - new Date().getTime();
+                    let hours = Math.floor((distance % (1000 * 60 * 60 * 60)) / (1000 * 60 * 60));
+                    let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    let parseSeconds = seconds < 10 ? ("0" + seconds) : ("" + seconds)
+                    let parseMinutes = minutes < 10 && hours > 0 ? ("0" + minutes) : ("" + minutes);
+                    let parseHours = hours == 0 ? "" : (hours + ":");
+                    let txtTime = distance >= 0 ? ("IN " + parseHours + parseMinutes + ":" + parseSeconds) : "NOW";
+                    // console.log(distance);
+                    document.getElementById('timer').innerHTML = txtTime;
+                }, 250);
+                document.addEventListener("keydown", (e) => {
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <h1>ANIME BRIGADE STARTING <span id="timer"></span></h1>
+        <div id="title"></div>
+        <div id="song"></div>
+        <div id="data"></div>
+        <video id="player1" controls>
+            <source id="source1" type="video/webm"></source>
+        </video> 
+        <video id="player2" class="hidden" controls>
+            <source id="source2" type="video/webm"></source>
+        </video> 
+    </body>
+</html>
