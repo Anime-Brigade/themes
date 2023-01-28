@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const router = express.Router();
-const allowcatbox = false;
+const allowcatbox = true;
 let URL_LIMIT = 100;
 let SLUG_LIMIT = 100;
 
