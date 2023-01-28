@@ -131,6 +131,7 @@
 
                     // load next
                     theme = await getTheme();
+                    console.log('next:', theme);
                     document.getElementById(source).setAttribute('src', theme.url);
                     document.getElementById(source).oncanplay = () => {
                         console.log(source + ' has loaded');
