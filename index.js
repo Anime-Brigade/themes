@@ -4,7 +4,8 @@ const fs = require('fs');
 
 const router = express.Router();
 const allowcatbox = false;
-let LIMIT = 100;
+let URL_LIMIT = 100;
+let SLUG_LIMIT = 100;
 
 async function getTheme() {
     let history = await new Promise((resolve, reject) => {
@@ -22,7 +23,7 @@ async function getTheme() {
             history.sections[section][meeting].forEach(show => {
                 let weight = 0;
                 for (let i = 0; i < history.shows[show].themes.length; i++) {
-                    weight += 1 / (i + 1);
+                    weight += 1 / Math.pow(2, i);
                 }
 
                 if (!seenAnime[show]) {
@@ -32,6 +33,8 @@ async function getTheme() {
 
                 history.shows[show].themes.forEach(theme => {
                     if (!seenAnime[show][theme.url]) {
+                        let parentSlug = history.shows[show].parent;
+                        if (!parentSlug) parentSlug = show;
                         seenAnime[show][theme.url] = {
                             weight: weight,
                             watches: [{
@@ -39,6 +42,8 @@ async function getTheme() {
                                 meeting: meeting
                             }],
                             anime: history.shows[show].name,
+                            slug: show,
+                            parentSlug: parentSlug,
                             theme: theme.name,
                             url: theme.url
                         };
@@ -67,7 +72,13 @@ async function getTheme() {
         });
     });
 
-    console.log(themesList.length, 'themes,', cantsee.length, 'blacklisted');
+    URL_LIMIT = themesList.length / 2;
+    SLUG_LIMIT = Object.keys(seenAnime).length / 3;
+
+    console.log(themesList.length, 'themes,',
+                Object.keys(seenAnime).length, 'anime,',
+                cantsee.urls.length, 'urls on cantsee,',
+                cantsee.slugs.length, 'slugs on cantsee');
 
     let retTheme = null
 
@@ -80,17 +91,23 @@ async function getTheme() {
             i++;
         }
 
-        if(cantsee.includes(themesList[i].url)) {
-            console.log("COLLISION: retry!");
+        if(cantsee.urls.includes(themesList[i].url)) {
+            console.log("URL COLLISION: retry!");
+        } else if(cantsee.slugs.includes(themesList[i].slug)) {
+            console.log("SLUG COLLISION: retry!");
         } else if (!allowcatbox && themesList[i].url.includes("catbox")) {
             console.log("catbox disabled, retry!");
+        } else if (history.disabled.includes(themesList[i].slug)) {
+            console.log("disabled entry, retry!");
         } else {
             retTheme = themesList[i];
         }
     }
 
-    cantsee.push(retTheme.url);
-    if(cantsee.length > LIMIT) cantsee.shift();
+    cantsee.urls.push(retTheme.url);
+    cantsee.slugs.push(retTheme.parentSlug);
+    if(cantsee.urls.length > URL_LIMIT) cantsee.urls.shift();
+    if(cantsee.slugs.length > SLUG_LIMIT) cantsee.slugs.shift();
     await new Promise((resolve, reject) => {
         fs.writeFile(path.join(__dirname, 'run/cantsee.json'), JSON.stringify(cantsee), err => {
             if (err) reject(err);
