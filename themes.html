@@ -103,6 +103,7 @@
             window.onload = async function() {
                 let theme;
                 let switchPlayer = async (source, destination) => {
+                    // set text
                     document.getElementById('title').innerText = theme.anime;
                     document.getElementById('song').innerText = theme.theme;
                     let datahtml = "";
@@ -116,6 +117,8 @@
                         datahtml += '</span>';
                     }
                     document.getElementById('data').innerHTML = datahtml;
+
+                    // play video
                     document.getElementById(destination)?.classList.remove('hidden');
                     document.getElementById(source).classList.add('hidden');
                     document.getElementById(destination)?.play();
@@ -125,12 +128,15 @@
                             document.getElementById(destination).onplaying = () => {};
                         };
                     }
+
+                    // load next
                     theme = await getTheme();
                     document.getElementById(source).setAttribute('src', theme.url);
                     document.getElementById(source).oncanplay = () => {
                         console.log(source + ' has loaded');
                         document.getElementById(source).onplaying = () => {
                             document.getElementById(source).pause();
+                            document.getElementById(source).currentTime = 0;
                             document.getElementById(source).volume = 1;
                             document.getElementById(source).onplaying = () => {};
                             console.log(source + ' preplayed success');
@@ -143,14 +149,14 @@
                     
                 };
                 document.getElementById('title').onclick = () => {
-                    console.log('clicked');
-                    console.log(document.getElementById('player1').getAttribute('controls') === '');
                     if (document.getElementById('player1').getAttribute('controls') === '') {
                         document.getElementById('player1').removeAttribute('controls');
                         document.getElementById('player2').removeAttribute('controls');
+                        console.log('disabled controls');
                     } else {
                         document.getElementById('player1').setAttribute('controls', '');
                         document.getElementById('player2').setAttribute('controls', '');
+                        console.log('enabled controls');
                     }
                     
                 };
