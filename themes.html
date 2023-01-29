@@ -22,7 +22,12 @@
                 left: -30px;
                 top: -30px;
             }
-            h1 {
+            video:not([controls]) {
+                cursor: none;
+                pointer-events: none;
+            }
+            #top {
+                z-index: 100;
                 margin: 0px;
                 position: absolute;
                 display: block; 
@@ -35,32 +40,41 @@
                 line-height: 60px;
                 height: 60px;
                 color: #DDEEFF;
+                white-space: nowrap;
+                overflow: hidden;
             }
             #title {
+                z-index: 100;
                 position: absolute;
                 display: block; 
-                bottom: 65px;
+                bottom: 60px; /* 5px less for letter tails */
                 left: 0px;
-                height: 30px;
+                height: 35px; /* 5px more for letter tails */
                 width: 100%;
                 color: #DDEEFF;
                 font-size: 30px;
                 line-height: 30px;
                 text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
             }
             #song {
+                z-index: 100;
                 position: absolute;
                 display: block; 
-                bottom: 45px;
+                bottom: 40px; /* 5px less for letter tails */
                 left: 0px;
-                height: 20px;
+                height: 25px; /* 5px more for letter tails */
                 width: 100%;
-                color: #DDEEFF;
+                color: #DDEEFFAA;
                 font-size: 20px;
                 line-height: 20px;
                 text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
             }
             #data {
+                z-index: 100;
                 position: absolute;
                 display: block; 
                 bottom: 20px;
@@ -71,8 +85,11 @@
                 font-size: 16px;
                 line-height: 20px;
                 text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
             }
             .section {
+                z-index: 100;
                 border-radius: 5px;
                 background-color: #DDEEFF;
                 color: #000000;
@@ -82,6 +99,25 @@
                 margin-right: 5px;
                 display: inline-block;
                 line-height: 20px;
+            }
+            #button {
+                z-index: 1000;
+                position: absolute;
+                bottom: 0px;
+                left: 0px;
+                width: 100px;
+                height: 100px;
+                display: block;
+                background-color: #0000;
+                cursor: pointer;
+                line-height: 100px;
+                text-align: center;
+                opacity: 0;
+                color: #DDEEFF;
+            }
+            #button:hover {
+                background-color: #222F;
+                opacity: 1;
             }
         </style>
         <script>
@@ -149,7 +185,7 @@
                     document.getElementById(source).load();
                     
                 };
-                document.getElementById('top').onclick = () => {
+                document.getElementById('button').onclick = () => {
                     if (document.getElementById('player1').getAttribute('controls') === '') {
                         document.getElementById('player1').removeAttribute('controls');
                         document.getElementById('player2').removeAttribute('controls');
@@ -166,7 +202,7 @@
                 theme = await getTheme();
                 console.log(theme);
 
-                document.getElementById('source1').setAttribute('src', theme.url); 
+                document.getElementById('player1').setAttribute('src', theme.url); 
                 document.getElementById('player1').load();
                 switchPlayer('player2', null);
 
@@ -206,6 +242,7 @@
         <div id="title"></div>
         <div id="song"></div>
         <div id="data"></div>
+        <div id="button">controls</div>
         <video id="player1" controls>
             <source id="source1" type="video/webm"></source>
         </video> 
